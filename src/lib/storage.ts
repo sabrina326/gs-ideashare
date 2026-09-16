@@ -1,19 +1,36 @@
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
 const BUCKET = 'meeting-media'
 
-// Lightweight client just for building public storage URLs
-const _storageClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+// Lazy-init the storage client so it doesn't crash at build time
+// when env vars aren't yet available
+let _storageClient: ReturnType<typeof createClient> | null = null
+
+function getStorageClient() {
+  if (!_storageClient) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? ''
+    if (url && key) {
+      _storageClient = createClient(url, key)
+    }
+  }
+  return _storageClient
+}
 
 /**
  * Returns the public URL for a file stored in the meeting-media bucket.
  * Uses the Supabase SDK's getPublicUrl() so encoding is handled correctly.
+ * Falls back to constructing the URL manually if the client isn't ready.
  */
 export function getMediaUrl(filePath: string): string {
-  const { data } = _storageClient.storage.from(BUCKET).getPublicUrl(filePath)
-  return data.publicUrl
+  const client = getStorageClient()
+  if (client) {
+    const { data } = client.storage.from(BUCKET).getPublicUrl(filePath)
+    return data.publicUrl
+  }
+  // Fallback: construct URL directly
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  return `${url}/storage/v1/object/public/${BUCKET}/${filePath}`
 }
 
 /**
