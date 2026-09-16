@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #2D7A4C;
+  --color-forest-dark: #1f5a37;
+  --color-forest-light: #e8f5ee;
+  --color-bark: #C9A97A;
+  --color-bark-dark: #a8854f;
+  --color-bark-light: #f5edd9;
+  --color-cream: #FAF6F1;
+  --color-charcoal: #2C2C2C;
+  --color-charcoal-light: #555555;
+  --color-parchment: #f0e8da;
+
+  --font-display: var(--font-fredoka), "Fredoka", sans-serif;
+  --font-body: var(--font-nunito), "Nunito", sans-serif;
+
+  --shadow-warm: 0 2px 12px 0 rgba(44, 44, 44, 0.10);
+  --shadow-warm-lg: 0 4px 24px 0 rgba(44, 44, 44, 0.13);
+  --radius-card: 1rem;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-body);
+    background-color: var(--color-cream);
+    color: var(--color-charcoal);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+
+  /* Subtle nature-inspired dot grid background */
+  body {
+    background-color: var(--color-cream);
+    background-image: radial-gradient(circle, #c9a97a22 1px, transparent 1px);
+    background-size: 28px 28px;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-white transition-all duration-150;
+    background-color: var(--color-forest);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-forest-dark);
+    box-shadow: var(--shadow-warm);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold transition-all duration-150 border-2;
+    color: var(--color-forest);
+    border-color: var(--color-forest);
+    background: transparent;
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+  .btn-secondary:hover {
+    background-color: var(--color-forest-light);
+    transform: translateY(-1px);
+  }
+
+  .btn-bark {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-white transition-all duration-150;
+    background-color: var(--color-bark);
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+  .btn-bark:hover {
+    background-color: var(--color-bark-dark);
+    transform: translateY(-1px);
+  }
+
+  .card {
+    background: white;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-warm);
+    overflow: hidden;
+  }
+  .card:hover {
+    box-shadow: var(--shadow-warm-lg);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border-2 px-4 py-2.5 text-sm outline-none transition-all duration-150;
+    border-color: #e5ddd3;
+    background: white;
+    font-family: var(--font-body);
+    color: var(--color-charcoal);
+  }
+  .input-field:focus {
+    border-color: var(--color-forest);
+    box-shadow: 0 0 0 3px #2D7A4C22;
+  }
+  .input-field::placeholder {
+    color: #aaa;
+  }
+
+  .label {
+    @apply block text-sm font-semibold mb-1.5;
+    color: var(--color-charcoal);
+    font-family: var(--font-body);
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    color: var(--color-charcoal);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .level-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+    font-family: var(--font-body);
+  }
+
+  .filter-chip {
+    @apply px-3.5 py-1.5 rounded-full text-sm font-semibold border-2 transition-all duration-150 cursor-pointer select-none;
+    font-family: var(--font-body);
+    border-color: #e5ddd3;
+    background: white;
+    color: var(--color-charcoal-light);
+  }
+  .filter-chip:hover {
+    border-color: var(--color-forest);
+    color: var(--color-forest);
+  }
+  .filter-chip.active {
+    background-color: var(--color-forest);
+    border-color: var(--color-forest);
+    color: white;
+  }
+
+  .avatar {
+    @apply inline-flex items-center justify-center rounded-full font-bold text-white select-none shrink-0;
+    background-color: var(--color-forest);
+    font-family: var(--font-display);
+  }
+}
