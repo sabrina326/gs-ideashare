@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Fredoka, Nunito } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 
@@ -57,10 +58,10 @@ export default function RootLayout({
           </p>
         </footer>
         {/* GoatCounter analytics — privacy-friendly, no cookies */}
-        <script
+        <Script
           data-goatcounter="https://gs-ideashare.goatcounter.com/count"
-          async
           src="//gc.zgo.at/count.js"
+          strategy="afterInteractive"
         />
       </body>
     </html>
