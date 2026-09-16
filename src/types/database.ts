@@ -122,6 +122,7 @@ export interface Database {
           file_name: string
           file_type: string | null
           is_cover: boolean
+          cover_position: string
           created_at: string
         }
         Insert: {
@@ -131,6 +132,7 @@ export interface Database {
           file_name: string
           file_type?: string | null
           is_cover?: boolean
+          cover_position?: string
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['meeting_media']['Insert']>

@@ -11,7 +11,9 @@ interface MeetingCardProps {
 }
 
 export function MeetingCard({ meeting }: MeetingCardProps) {
-  const thumbnail = getThumbnailUrl(meeting.media)
+  const thumbData = getThumbnailUrl(meeting.media)
+  const thumbnail = thumbData?.url ?? null
+  const thumbPosition = thumbData?.position ?? 'center'
   const isFieldTrip = meeting.meeting_type === 'field-trip'
   const authorInitials =
     meeting.author.avatar_initials ||
@@ -42,6 +44,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
               alt={`Photo for ${meeting.title}`}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
+              style={{ objectPosition: thumbPosition }}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (

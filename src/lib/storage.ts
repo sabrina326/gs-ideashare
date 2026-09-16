@@ -12,14 +12,28 @@ export function getMediaUrl(filePath: string): string {
 }
 
 /**
- * Returns the cover image's public URL, or the first image, or null.
+ * Convert a cover_position value (legacy text or percentage) to CSS object-position.
+ */
+export function getCoverPositionCSS(position?: string): string {
+  if (!position) return 'center'
+  if (position === 'top') return 'center 0%'
+  if (position === 'center') return 'center 50%'
+  if (position === 'bottom') return 'center 100%'
+  if (position.endsWith('%')) return `center ${position}`
+  return 'center'
+}
+
+/**
+ * Returns the cover image's public URL and position, or the first image, or null.
  */
 export function getThumbnailUrl(
-  media: Array<{ file_path: string; file_type: string | null; is_cover?: boolean }>
-): string | null {
+  media: Array<{ file_path: string; file_type: string | null; is_cover?: boolean; cover_position?: string }>
+): { url: string; position: string } | null {
   const images = media.filter(m => m.file_type?.startsWith('image/'))
   const image = images.find(m => m.is_cover) ?? images[0]
-  return image ? getMediaUrl(image.file_path) : null
+  return image
+    ? { url: getMediaUrl(image.file_path), position: getCoverPositionCSS(image.cover_position) }
+    : null
 }
 
 /**

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { PhotoLightbox } from '@/components/ui/PhotoLightbox'
-import { getMediaUrl } from '@/lib/storage'
+import { getMediaUrl, getCoverPositionCSS } from '@/lib/storage'
 import type { MeetingMedia } from '@/types/database'
 
 export function HeroImage({
@@ -34,6 +34,7 @@ export function HeroImage({
           alt={`Hero image for ${meetingTitle}`}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+          style={{ objectPosition: getCoverPositionCSS(image.cover_position) }}
           priority
           sizes="(max-width: 768px) 100vw, 768px"
         />

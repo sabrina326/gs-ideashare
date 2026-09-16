@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { uploadFile, getMediaUrl } from '@/lib/storage'
+import { CoverPositioner } from '@/components/ui/CoverPositioner'
 import { SCOUT_LEVELS, type ScoutLevel, type Profile, type MeetingWithDetails } from '@/types/database'
 
 interface LinkRow {
@@ -121,8 +122,18 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
     const coverItem = editMeeting?.media?.find(m => m.is_cover)
     return coverItem?.id ?? ''
   })
+  const [coverPosition, setCoverPosition] = useState<number>(() => {
+    const coverItem = editMeeting?.media?.find(m => m.is_cover)
+    const pos = coverItem?.cover_position ?? 'center'
+    // Convert legacy text values to percentages
+    if (pos === 'top') return 0
+    if (pos === 'bottom') return 100
+    if (pos === 'center') return 50
+    return parseInt(pos) || 50
+  })
+  const [showPositioner, setShowPositioner] = useState<string>('')
 
-  const [submitting, setSubmitting] = useState(false)
+  const [submitting, setSubmitting] = useSta
   const [error, setError] = useState<string | null>(null)
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
@@ -315,7 +326,7 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
               if (newRow?.id) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 await (supabase.from('meeting_media') as any)
-                  .update({ is_cover: true })
+                  .update({ is_cover: true, cover_position: `${coverPosition}%` })
                   .eq('id', newRow.id)
               }
             }
@@ -334,7 +345,7 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
           .eq('meeting_id', meetingId)
         // Then set the chosen one
         await mediaTbl
-          .update({ is_cover: true })
+          .update({ is_cover: true, cover_position: `${coverPosition}%` })
           .eq('id', coverId)
       }
 
@@ -724,6 +735,18 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
                       ⭐ Cover
                     </span>
                   )}
+                  {/* Reposition button — only show on the cover photo */}
+                  {coverId === m.id && isImage && (
+                    <button
+                      type="button"
+                      onClick={() => setShowPositioner(m.id)}
+                      className="absolute bottom-1.5 right-1.5 z-10 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/90 text-[#2D7A4C] shadow hover:bg-white transition-colors"
+                      style={{ fontFamily: 'var(--font-body)' }}
+                      aria-label="Reposition cover photo"
+                    >
+                      ↕ Reposition
+                    </button>
+                  )}
 
                   {isImage ? (
                     <div className="relative h-28">
@@ -774,6 +797,21 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
           </div>
         )}
       </section>
+
+      {/* Cover photo repositioner modal */}
+      {showPositioner && (() => {
+        const item = mediaItems.find(m => m.id === showPositioner)
+        if (!item) return null
+        const url = item.isExisting ? getMediaUrl(item.file_path) : item.previewUrl
+        return (
+          <CoverPositioner
+            imageUrl={url}
+            position={coverPosition}
+            onChange={setCoverPosition}
+            onClose={() => setShowPositioner('')}
+          />
+        )
+      })()}
 
       {/* ── Error message ── */}
       {error && (
