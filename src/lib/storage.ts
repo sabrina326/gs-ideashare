@@ -2,39 +2,17 @@ import { createClient } from '@supabase/supabase-js'
 
 const BUCKET = 'meeting-media'
 
-// Lazy-init the storage client so it doesn't crash at build time
-// when env vars aren't yet available
-let _storageClient: ReturnType<typeof createClient> | null = null
-
-function getStorageClient() {
-  if (!_storageClient) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? ''
-    if (url && key) {
-      _storageClient = createClient(url, key)
-    }
-  }
-  return _storageClient
-}
-
 /**
  * Returns the public URL for a file stored in the meeting-media bucket.
- * Uses the Supabase SDK's getPublicUrl() so encoding is handled correctly.
- * Falls back to constructing the URL manually if the client isn't ready.
+ * Constructs the URL directly — no Supabase client needed.
  */
 export function getMediaUrl(filePath: string): string {
-  const client = getStorageClient()
-  if (client) {
-    const { data } = client.storage.from(BUCKET).getPublicUrl(filePath)
-    return data.publicUrl
-  }
-  // Fallback: construct URL directly
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
   return `${url}/storage/v1/object/public/${BUCKET}/${filePath}`
 }
 
 /**
- * Returns the first image media item's public URL, or null if none.
+ * Returns the cover image's public URL, or the first image, or null.
  */
 export function getThumbnailUrl(
   media: Array<{ file_path: string; file_type: string | null; is_cover?: boolean }>
