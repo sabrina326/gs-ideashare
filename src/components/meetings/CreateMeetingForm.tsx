@@ -273,6 +273,7 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
 
       // Upload any new files (both create and edit modes)
       const newFiles = mediaItems.filter((m): m is NewMedia => !m.isExisting)
+      const coverNewFile = newFiles.find(m => m.id === coverId)
       if (newFiles.length) {
         setMediaItems(prev =>
           prev.map(m => (!m.isExisting ? { ...m, uploading: true } : m))
@@ -296,11 +297,35 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
         if (mediaInserts.length) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (supabase.from('meeting_media') as any).insert(mediaInserts)
+
+          // If the cover photo was a newly uploaded file, find its real DB ID by file_name
+          if (coverNewFile) {
+            const coverFileName = coverNewFile.file.name
+            const coverInsert = mediaInserts.find(
+              (m: { file_name: string } | null) => m && m.file_name === coverFileName
+            )
+            if (coverInsert) {
+              // Fetch the newly inserted row to get its real UUID
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const { data: newRow } = await (supabase.from('meeting_media') as any)
+                .select('id')
+                .eq('meeting_id', meetingId)
+                .eq('file_name', coverFileName)
+                .single()
+              if (newRow?.id) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                await (supabase.from('meeting_media') as any)
+                  .update({ is_cover: true })
+                  .eq('id', newRow.id)
+              }
+            }
+          }
         }
       }
 
       // Set cover photo
-      if (coverId) {
+      if (coverId && !coverNewFile) {
+        // Only run this for existing media items (new files handled above)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mediaTbl = supabase.from('meeting_media') as any
         // First reset all covers for this meeting
