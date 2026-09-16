@@ -445,7 +445,7 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
           className="w-5 h-5 rounded border-[#C9A97A] text-[#2D7A4C] focus:ring-[#2D7A4C] cursor-pointer"
         />
         <span className="text-sm font-semibold text-[#2C2C2C]" style={{ fontFamily: 'var(--font-body)' }}>
-          🤝 This is a <span className="text-[#C9A97A]">Service Project</span>
+          🫶 This is a <span className="text-[#C9A97A]">Service Project</span>
         </span>
       </label>
 

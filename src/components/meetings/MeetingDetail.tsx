@@ -119,7 +119,7 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
           {/* Service Project tag */}
           {meeting.is_service_project && (
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold text-white" style={{ background: '#C9A97A', fontFamily: 'var(--font-body)' }}>
-              🤝 Service Project
+              🫶 Service Project
             </span>
           )}
 
