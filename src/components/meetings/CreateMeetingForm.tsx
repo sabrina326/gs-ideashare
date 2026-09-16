@@ -133,7 +133,7 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
   })
   const [showPositioner, setShowPositioner] = useState<string>('')
 
-  const [submitting, setSubmitting] = useSta
+  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
