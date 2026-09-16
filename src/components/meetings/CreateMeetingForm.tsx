@@ -80,6 +80,7 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
     editMeeting?.meeting_type ?? 'regular'
   )
   const [fieldTripTown, setFieldTripTown] = useState(editMeeting?.field_trip_town ?? '')
+  const [isServiceProject, setIsServiceProject] = useState(editMeeting?.is_service_project ?? false)
   const [selectedLevels, setSelectedLevels] = useState<ScoutLevel[]>(
     editMeeting?.levels ?? []
   )
@@ -213,6 +214,7 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
         local_notes: localNotes.trim() || null,
         badge_type: badgeType,
         badge_purchase_url: badgePurchaseUrl.trim() || null,
+        is_service_project: isServiceProject,
         updated_at: new Date().toISOString(),
       }
 
@@ -433,6 +435,19 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
           </div>
         )}
       </section>
+
+      {/* ── Service Project Tag ── */}
+      <label className="flex items-center gap-3 cursor-pointer px-1">
+        <input
+          type="checkbox"
+          checked={isServiceProject}
+          onChange={e => setIsServiceProject(e.target.checked)}
+          className="w-5 h-5 rounded border-[#C9A97A] text-[#2D7A4C] focus:ring-[#2D7A4C] cursor-pointer"
+        />
+        <span className="text-sm font-semibold text-[#2C2C2C]" style={{ fontFamily: 'var(--font-body)' }}>
+          🤝 This is a <span className="text-[#C9A97A]">Service Project</span>
+        </span>
+      </label>
 
       {/* ── Scout Levels ── */}
       <section>

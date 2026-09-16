@@ -68,6 +68,7 @@ export interface Database {
           local_notes: string | null
           badge_type: BadgeType
           badge_purchase_url: string | null
+          is_service_project: boolean
           created_at: string
           updated_at: string
         }
@@ -92,6 +93,7 @@ export interface Database {
           local_notes?: string | null
           badge_type?: BadgeType
           badge_purchase_url?: string | null
+          is_service_project?: boolean
           created_at?: string
           updated_at?: string
         }

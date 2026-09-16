@@ -61,6 +61,16 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
             </span>
           )}
 
+          {/* Service Project badge overlay */}
+          {meeting.is_service_project && (
+            <span
+              className={`absolute ${isFieldTrip ? 'top-10' : 'top-2.5'} left-2.5 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold text-white`}
+              style={{ background: '#C9A97A', fontFamily: 'var(--font-body)' }}
+            >
+              🤝 Service Project
+            </span>
+          )}
+
           {/* Cost badge */}
           <span
             className="absolute top-2.5 right-2.5 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"
