@@ -56,6 +56,9 @@ export interface Database {
           field_trip_town: string | null
           levels: ScoutLevel[]
           cost: number
+          supply_cost: number
+          guest_cost: number
+          num_girls: number
           supplies: string | null
           local_business: string | null
           local_contact: string | null
@@ -77,6 +80,9 @@ export interface Database {
           field_trip_town?: string | null
           levels: ScoutLevel[]
           cost?: number
+          supply_cost?: number
+          guest_cost?: number
+          num_girls?: number
           supplies?: string | null
           local_business?: string | null
           local_contact?: string | null
@@ -115,6 +121,7 @@ export interface Database {
           file_path: string
           file_name: string
           file_type: string | null
+          is_cover: boolean
           created_at: string
         }
         Insert: {
@@ -123,6 +130,7 @@ export interface Database {
           file_path: string
           file_name: string
           file_type?: string | null
+          is_cover?: boolean
           created_at?: string
         }
         Update: Partial<Database['public']['Tables']['meeting_media']['Insert']>

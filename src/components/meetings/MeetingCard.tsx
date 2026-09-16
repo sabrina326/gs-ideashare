@@ -17,10 +17,15 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
     meeting.author.avatar_initials ||
     meeting.author.display_name.slice(0, 2).toUpperCase()
 
+  const totalCost = meeting.cost ?? 0
+  const numGirls = meeting.num_girls ?? 0
+  const costPerGirl = numGirls > 0 ? totalCost / numGirls : 0
   const costLabel =
-    meeting.cost === 0
+    totalCost === 0
       ? 'Free'
-      : `$${Number(meeting.cost).toFixed(meeting.cost % 1 === 0 ? 0 : 2)}`
+      : numGirls > 0
+        ? `$${costPerGirl.toFixed(2)}/girl`
+        : `$${totalCost.toFixed(totalCost % 1 === 0 ? 0 : 2)}`
 
   return (
     <div className="card group transition-all duration-200 relative">
@@ -58,7 +63,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
             className="absolute top-2.5 right-2.5 inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"
             style={{
               background: 'rgba(250,246,241,0.95)',
-              color: meeting.cost === 0 ? '#2D7A4C' : '#2C2C2C',
+              color: totalCost === 0 ? '#2D7A4C' : '#2C2C2C',
               fontFamily: 'var(--font-body)',
               border: '1px solid #e5ddd3',
             }}

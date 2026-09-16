@@ -82,9 +82,19 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
   const [selectedLevels, setSelectedLevels] = useState<ScoutLevel[]>(
     editMeeting?.levels ?? []
   )
-  const [cost, setCost] = useState(
-    editMeeting?.cost != null && editMeeting.cost !== 0
-      ? String(editMeeting.cost)
+  const [supplyCost, setSupplyCost] = useState(
+    editMeeting?.supply_cost != null && editMeeting.supply_cost !== 0
+      ? String(editMeeting.supply_cost)
+      : ''
+  )
+  const [guestCost, setGuestCost] = useState(
+    editMeeting?.guest_cost != null && editMeeting.guest_cost !== 0
+      ? String(editMeeting.guest_cost)
+      : ''
+  )
+  const [numGirls, setNumGirls] = useState(
+    editMeeting?.num_girls != null && editMeeting.num_girls !== 0
+      ? String(editMeeting.num_girls)
       : ''
   )
   const [supplies, setSupplies] = useState(editMeeting?.supplies ?? '')
@@ -106,6 +116,11 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
   )
 
   const [mediaItems, setMediaItems] = useState<MediaItem[]>(() => initialMedia(editMeeting))
+  // Cover photo: store the media item ID that should be the cover
+  const [coverId, setCoverId] = useState<string>(() => {
+    const coverItem = editMeeting?.media?.find(m => m.is_cover)
+    return coverItem?.id ?? ''
+  })
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -174,7 +189,10 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
         meeting_type: meetingType,
         field_trip_town: meetingType === 'field-trip' ? fieldTripTown.trim() : null,
         levels: selectedLevels,
-        cost: parseFloat(cost) || 0,
+        cost: (parseFloat(supplyCost) || 0) + (parseFloat(guestCost) || 0),
+        supply_cost: parseFloat(supplyCost) || 0,
+        guest_cost: parseFloat(guestCost) || 0,
+        num_girls: parseInt(numGirls) || 0,
         supplies: supplies.trim() || null,
         local_business: localBusiness.trim() || null,
         local_contact: localContact.trim() || null,
@@ -279,6 +297,20 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (supabase.from('meeting_media') as any).insert(mediaInserts)
         }
+      }
+
+      // Set cover photo
+      if (coverId) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mediaTbl = supabase.from('meeting_media') as any
+        // First reset all covers for this meeting
+        await mediaTbl
+          .update({ is_cover: false })
+          .eq('meeting_id', meetingId)
+        // Then set the chosen one
+        await mediaTbl
+          .update({ is_cover: true })
+          .eq('id', coverId)
       }
 
       router.push(`/meetings/${meetingId}`)
@@ -391,21 +423,75 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
 
       {/* ── Estimated Cost ── */}
       <section>
-        <label htmlFor="cost" className="label">Estimated Cost ($)</label>
-        <div className="relative max-w-xs">
-          <span className="absolute inset-y-0 left-3.5 flex items-center text-[#aaa] text-sm pointer-events-none" aria-hidden="true">$</span>
+        <span className="label">Cost Breakdown</span>
+        <div className="grid grid-cols-2 gap-3 mt-1">
+          <div>
+            <label htmlFor="supply-cost" className="block text-xs font-semibold text-[#888] mb-1" style={{ fontFamily: 'var(--font-body)' }}>
+              Supply Cost ($)
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3.5 flex items-center text-[#aaa] text-sm pointer-events-none" aria-hidden="true">$</span>
+              <input
+                id="supply-cost"
+                type="number"
+                min="0"
+                step="0.01"
+                value={supplyCost}
+                onChange={e => setSupplyCost(e.target.value)}
+                placeholder="0"
+                className="input-field pl-7"
+              />
+            </div>
+          </div>
+          <div>
+            <label htmlFor="guest-cost" className="block text-xs font-semibold text-[#888] mb-1" style={{ fontFamily: 'var(--font-body)' }}>
+              Guest Speaker Cost ($)
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-3.5 flex items-center text-[#aaa] text-sm pointer-events-none" aria-hidden="true">$</span>
+              <input
+                id="guest-cost"
+                type="number"
+                min="0"
+                step="0.01"
+                value={guestCost}
+                onChange={e => setGuestCost(e.target.value)}
+                placeholder="0"
+                className="input-field pl-7"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 max-w-xs">
+          <label htmlFor="num-girls" className="block text-xs font-semibold text-[#888] mb-1" style={{ fontFamily: 'var(--font-body)' }}>
+            Number of Girls
+          </label>
           <input
-            id="cost"
+            id="num-girls"
             type="number"
             min="0"
-            step="0.01"
-            value={cost}
-            onChange={e => setCost(e.target.value)}
-            placeholder="0"
-            className="input-field pl-7"
+            step="1"
+            value={numGirls}
+            onChange={e => setNumGirls(e.target.value)}
+            placeholder="e.g. 12"
+            className="input-field max-w-[120px]"
           />
         </div>
-        <p className="text-xs text-[#aaa] mt-1">Leave at 0 for a free meeting</p>
+        {/* Live cost calculation */}
+        {((parseFloat(supplyCost) || 0) + (parseFloat(guestCost) || 0)) > 0 && (
+          <div className="mt-3 px-4 py-3 rounded-xl text-sm" style={{ background: '#f0faf4', fontFamily: 'var(--font-body)' }}>
+            <p className="text-[#2C2C2C]">
+              <span className="font-semibold">Total cost:</span>{' '}
+              ${((parseFloat(supplyCost) || 0) + (parseFloat(guestCost) || 0)).toFixed(2)}
+            </p>
+            {parseInt(numGirls) > 0 && (
+              <p className="text-[#2D7A4C] font-semibold mt-1">
+                ≈ ${(((parseFloat(supplyCost) || 0) + (parseFloat(guestCost) || 0)) / parseInt(numGirls)).toFixed(2)} per girl
+              </p>
+            )}
+          </div>
+        )}
+        <p className="text-xs text-[#aaa] mt-1">Leave costs at 0 for a free meeting</p>
       </section>
 
       {/* ── Useful Links ── */}
@@ -603,14 +689,14 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
               const name = m.isExisting ? m.file_name : m.file.name
 
               return (
-                <div key={m.id} className="relative group rounded-xl overflow-hidden border border-[#e5ddd3] bg-white">
-                  {/* Existing badge */}
-                  {m.isExisting && (
+                <div key={m.id} className={`relative group rounded-xl overflow-hidden border-2 bg-white ${coverId === m.id ? 'border-[#2D7A4C]' : 'border-[#e5ddd3]'}`}>
+                  {/* Cover badge */}
+                  {coverId === m.id && (
                     <span
-                      className="absolute top-1.5 left-1.5 z-10 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-black/40 text-white"
+                      className="absolute top-1.5 left-1.5 z-10 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[#2D7A4C] text-white"
                       style={{ fontFamily: 'var(--font-body)' }}
                     >
-                      saved
+                      ⭐ Cover
                     </span>
                   )}
 
@@ -632,6 +718,19 @@ export function CreateMeetingForm({ userId, editMeeting }: CreateMeetingFormProp
                       </svg>
                       <span className="text-xs text-[#888] px-2 text-center truncate w-full">{name}</span>
                     </div>
+                  )}
+
+                  {/* Set as cover button — only show on images */}
+                  {isImage && coverId !== m.id && (
+                    <button
+                      type="button"
+                      onClick={() => setCoverId(m.id)}
+                      className="absolute bottom-1.5 left-1.5 z-10 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/90 text-[#2D7A4C] shadow hover:bg-white transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                      style={{ fontFamily: 'var(--font-body)' }}
+                      aria-label={`Set ${name} as cover photo`}
+                    >
+                      Set as cover
+                    </button>
                   )}
 
                   <button

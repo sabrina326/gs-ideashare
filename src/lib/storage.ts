@@ -20,9 +20,10 @@ export function getMediaUrl(filePath: string): string {
  * Returns the first image media item's public URL, or null if none.
  */
 export function getThumbnailUrl(
-  media: Array<{ file_path: string; file_type: string | null }>
+  media: Array<{ file_path: string; file_type: string | null; is_cover?: boolean }>
 ): string | null {
-  const image = media.find(m => m.file_type?.startsWith('image/'))
+  const images = media.filter(m => m.file_type?.startsWith('image/'))
+  const image = images.find(m => m.is_cover) ?? images[0]
   return image ? getMediaUrl(image.file_path) : null
 }
 

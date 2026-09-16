@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { HeroImage, PhotoGrid } from './PhotoGallery'
 import { LevelBadgeList } from '@/components/ui/LevelBadge'
 import { Avatar } from '@/components/ui/Avatar'
 import { getMediaUrl } from '@/lib/storage'
@@ -21,12 +22,19 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
 
   const images = meeting.media.filter(m => m.file_type?.startsWith('image/'))
   const pdfs = meeting.media.filter(m => m.file_type === 'application/pdf')
-  const heroImage = images[0]
+  const heroImage = images.find(m => m.is_cover) ?? images[0]
 
+  const totalCost = meeting.cost ?? 0
+  const supplyCost = meeting.supply_cost ?? 0
+  const guestCost = meeting.guest_cost ?? 0
+  const numGirls = meeting.num_girls ?? 0
+  const costPerGirl = numGirls > 0 ? totalCost / numGirls : 0
   const costLabel =
-    meeting.cost === 0
+    totalCost === 0
       ? 'Free'
-      : `$${Number(meeting.cost).toFixed(meeting.cost % 1 === 0 ? 0 : 2)}`
+      : numGirls > 0
+        ? `$${costPerGirl.toFixed(2)}/girl`
+        : `$${totalCost.toFixed(totalCost % 1 === 0 ? 0 : 2)}`
 
   return (
     <article>
@@ -61,18 +69,11 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
 
       {/* Hero image */}
       {heroImage ? (
-        <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-6 bg-[#e8f5ee]">
-          <Image
-            src={getMediaUrl(heroImage.file_path)}
-            alt={`Hero image for ${meeting.title}`}
-            fill
-            className="object-cover"
-            priority
-            sizes="(max-width: 768px) 100vw, 768px"
-          />
+        <div className="relative mb-6">
+          <HeroImage image={heroImage} meetingTitle={meeting.title} allImages={images} />
           {isFieldTrip && (
             <span
-              className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold text-white"
+              className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold text-white z-10"
               style={{ background: '#2D7A4C', fontFamily: 'var(--font-body)' }}
             >
               🚌 Field Trip
@@ -161,6 +162,39 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
           >
             {meeting.description}
           </p>
+        </section>
+      )}
+
+      {/* ── Cost Breakdown ── */}
+      {totalCost > 0 && (
+        <section className="mb-8">
+          <h2 className="section-title mb-3">Cost Breakdown</h2>
+          <div className="rounded-xl px-4 py-3 space-y-1.5 text-sm" style={{ background: '#f5edd9', fontFamily: 'var(--font-body)' }}>
+            {supplyCost > 0 && (
+              <div className="flex justify-between">
+                <span className="text-[#666]">Supply cost</span>
+                <span className="font-semibold text-[#2C2C2C]">${supplyCost.toFixed(2)}</span>
+              </div>
+            )}
+            {guestCost > 0 && (
+              <div className="flex justify-between">
+                <span className="text-[#666]">Guest speaker</span>
+                <span className="font-semibold text-[#2C2C2C]">${guestCost.toFixed(2)}</span>
+              </div>
+            )}
+            {(supplyCost > 0 && guestCost > 0) && (
+              <div className="flex justify-between border-t border-[#e5ddd3] pt-1.5">
+                <span className="text-[#666]">Total</span>
+                <span className="font-semibold text-[#2C2C2C]">${totalCost.toFixed(2)}</span>
+              </div>
+            )}
+            {numGirls > 0 && (
+              <div className="flex justify-between border-t border-[#e5ddd3] pt-1.5">
+                <span className="text-[#2D7A4C] font-semibold">Cost per girl ({numGirls} girls)</span>
+                <span className="font-bold text-[#2D7A4C]">${costPerGirl.toFixed(2)}</span>
+              </div>
+            )}
+          </div>
         </section>
       )}
 
@@ -280,19 +314,7 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
       {images.length > 1 && (
         <section className="mb-8">
           <h2 className="section-title mb-3">Photos</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {images.map((img, i) => (
-              <div key={img.id} className="relative h-36 rounded-xl overflow-hidden bg-[#e8f5ee]">
-                <Image
-                  src={getMediaUrl(img.file_path)}
-                  alt={`Photo ${i + 1} for ${meeting.title}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 50vw, 33vw"
-                />
-              </div>
-            ))}
-          </div>
+          <PhotoGrid images={images} meetingTitle={meeting.title} />
         </section>
       )}
 

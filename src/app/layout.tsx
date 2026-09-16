@@ -56,6 +56,12 @@ export default function RootLayout({
             </a>
           </p>
         </footer>
+        {/* GoatCounter analytics — privacy-friendly, no cookies */}
+        <script
+          data-goatcounter="https://gs-ideashare.goatcounter.com/count"
+          async
+          src="//gc.zgo.at/count.js"
+        />
       </body>
     </html>
   )
