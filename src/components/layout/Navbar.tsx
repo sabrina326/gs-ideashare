@@ -44,7 +44,25 @@ export function Navbar() {
       .select('*')
       .eq('id', userId)
       .single()
-    if (data) setProfile(data)
+    if (data) {
+      setProfile(data)
+    } else {
+      // Profile doesn't exist yet — can happen if the insert failed during signup.
+      // Try to create a minimal profile so the user isn't stuck.
+      const { data: userData } = await supabase.auth.getUser()
+      const email = userData?.user?.email ?? ''
+      const name = email.split('@')[0] || 'Leader'
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: newProfile } = await (supabase.from('profiles') as any)
+        .upsert({
+          id: userId,
+          display_name: name,
+          avatar_initials: name.slice(0, 2).toUpperCase(),
+        })
+        .select()
+        .single()
+      if (newProfile) setProfile(newProfile)
+    }
   }
 
   // Close dropdown on outside click
