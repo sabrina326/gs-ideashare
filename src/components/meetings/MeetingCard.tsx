@@ -48,7 +48,7 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
-            <ThumbnailPlaceholder />
+            <ThumbnailPlaceholder title={meeting.title} isServiceProject={meeting.is_service_project} isFieldTrip={isFieldTrip} />
           )}
 
           {/* Field trip badge overlay */}
@@ -155,77 +155,87 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
   )
 }
 
-/** Gradient placeholder shown when there's no uploaded photo */
-function ThumbnailPlaceholder() {
+// Color palettes that rotate based on title hash
+const PALETTES = [
+  { from: '#2D7A4C', via: '#3d9960', to: '#1a5c36' },   // Forest greens
+  { from: '#2D7A4C', via: '#5aaa6e', to: '#C9A97A' },   // Green to tan
+  { from: '#3d6b5e', via: '#5a9c7a', to: '#2D7A4C' },   // Sage to forest
+  { from: '#4a7c59', via: '#C9A97A', to: '#8b6f47' },    // Woodland
+  { from: '#2D7A4C', via: '#6db585', to: '#1f5a37' },    // Mint forest
+  { from: '#5a7247', via: '#8aad6e', to: '#C9A97A' },    // Meadow
+]
+
+// Camp-themed icons (SVG paths)
+const ICONS = [
+  // Pine tree
+  `<path d="M32 8 L20 28 h6 L18 40 h28 L38 28 h6 Z" fill="white" opacity="0.15"/><rect x="29" y="40" width="6" height="8" rx="1" fill="white" opacity="0.12"/>`,
+  // Campfire
+  `<path d="M24 44 h16 M28 44 Q26 32 32 24 Q38 32 36 44" fill="none" stroke="white" stroke-width="2" opacity="0.2"/><path d="M30 44 Q30 36 32 28 Q34 36 34 44" fill="white" opacity="0.12"/>`,
+  // Trefoil/clover
+  `<circle cx="32" cy="24" r="8" fill="white" opacity="0.12"/><circle cx="24" cy="34" r="8" fill="white" opacity="0.12"/><circle cx="40" cy="34" r="8" fill="white" opacity="0.12"/>`,
+  // Star
+  `<path d="M32 12 L36 26 h14 L38 34 L42 48 L32 38 L22 48 L26 34 L14 26 h14 Z" fill="white" opacity="0.12"/>`,
+  // Heart
+  `<path d="M32 44 C20 36 12 26 12 20 a10 10 0 0 1 20-2 a10 10 0 0 1 20 2 c0 6-8 16-20 24z" fill="white" opacity="0.12"/>`,
+  // Compass
+  `<circle cx="32" cy="32" r="18" fill="none" stroke="white" stroke-width="1.5" opacity="0.15"/><circle cx="32" cy="32" r="2" fill="white" opacity="0.2"/><path d="M32 14 L34 30 L32 32 L30 30Z M32 50 L30 34 L32 32 L34 34Z" fill="white" opacity="0.15"/>`,
+]
+
+// Simple hash from string to pick palette/icon deterministically
+function hashStr(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0
+  return Math.abs(h)
+}
+
+/** Auto-generated cover shown when there's no uploaded photo */
+function ThumbnailPlaceholder({ title, isServiceProject, isFieldTrip }: { title: string; isServiceProject?: boolean; isFieldTrip?: boolean }) {
+  const hash = hashStr(title)
+  const palette = PALETTES[hash % PALETTES.length]
+  const icon = ICONS[hash % ICONS.length]
+  
+  // Pick an emoji for the type
+  const typeEmoji = isServiceProject ? '🫶' : isFieldTrip ? '🚌' : '🏕️'
+
   return (
     <div
-      className="w-full h-full flex flex-col items-center justify-center gap-2"
+      className="w-full h-full relative overflow-hidden flex flex-col items-center justify-center"
       style={{
-        background: 'linear-gradient(135deg, #2D7A4C 0%, #3d9960 40%, #C9A97A 100%)',
+        background: `linear-gradient(135deg, ${palette.from} 0%, ${palette.via} 50%, ${palette.to} 100%)`,
       }}
       aria-hidden="true"
     >
-      {/* Campground / tent icon */}
+      {/* Background icon */}
       <svg
-        width="52"
-        height="52"
+        className="absolute opacity-100"
+        width="120"
+        height="120"
+        style={{ right: '-10px', bottom: '-10px' }}
         viewBox="0 0 64 64"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Sky stars */}
-        <circle cx="14" cy="12" r="1.5" fill="white" opacity="0.7" />
-        <circle cx="50" cy="9"  r="1.5" fill="white" opacity="0.7" />
-        <circle cx="44" cy="17" r="1"   fill="white" opacity="0.5" />
-        <circle cx="20" cy="20" r="1"   fill="white" opacity="0.5" />
+        dangerouslySetInnerHTML={{ __html: icon }}
+      />
 
-        {/* Moon */}
-        <path
-          d="M54 14 a6 6 0 1 1-6 6 4.5 4.5 0 0 0 6-6z"
-          fill="white"
-          opacity="0.8"
-        />
-
-        {/* Ground */}
-        <rect x="4" y="46" width="56" height="3" rx="1.5" fill="white" opacity="0.25" />
-
-        {/* Main tent */}
-        <path
-          d="M32 10 L8 46 h48 Z"
-          fill="white"
-          opacity="0.18"
-        />
-        <path
-          d="M32 10 L8 46 h48 Z"
-          stroke="white"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-          fill="none"
-          opacity="0.9"
-        />
-
-        {/* Tent door */}
-        <path
-          d="M32 28 L24 46 h16 Z"
-          fill="#C9A97A"
-          opacity="0.85"
-        />
-
-        {/* Tent pole line */}
-        <line x1="32" y1="10" x2="32" y2="7" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
-
-        {/* Campfire */}
-        <ellipse cx="32" cy="52" rx="5" ry="1.5" fill="white" opacity="0.2" />
-        <path d="M30 51 Q32 46 34 51" stroke="#f97316" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        <path d="M31 51 Q32 48 33 51" stroke="#fbbf24" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      {/* Decorative dots */}
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="15" r="1.5" fill="white" opacity="0.3" />
+        <circle cx="160" cy="12" r="1" fill="white" opacity="0.25" />
+        <circle cx="140" cy="25" r="1.5" fill="white" opacity="0.2" />
+        <circle cx="45" cy="80" r="1" fill="white" opacity="0.2" />
+        <circle cx="170" cy="75" r="1.5" fill="white" opacity="0.15" />
       </svg>
 
-      <span
-        className="text-xs font-semibold tracking-wide"
-        style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-body)' }}
+      {/* Type emoji */}
+      <span className="text-3xl mb-1.5 relative z-10 drop-shadow-sm">{typeEmoji}</span>
+
+      {/* Meeting title */}
+      <p
+        className="relative z-10 text-sm font-semibold text-white text-center leading-tight px-5 line-clamp-2 drop-shadow-sm"
+        style={{ fontFamily: 'var(--font-display)', textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}
       >
-        No photo yet
-      </span>
+        {title}
+      </p>
     </div>
   )
 }

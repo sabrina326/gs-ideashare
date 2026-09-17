@@ -81,8 +81,15 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
           )}
         </div>
       ) : (
-        <div className="w-full h-40 rounded-2xl bg-[#e8f5ee] flex items-center justify-center mb-6">
-          <span className="text-5xl" aria-hidden="true">🏕️</span>
+        <div
+          className="w-full h-48 md:h-64 rounded-2xl flex flex-col items-center justify-center mb-6"
+          style={{ background: 'linear-gradient(135deg, #2D7A4C 0%, #3d9960 50%, #1a5c36 100%)' }}
+          aria-hidden="true"
+        >
+          <span className="text-5xl mb-2">{meeting.is_service_project ? '🫶' : isFieldTrip ? '🚌' : '🏕️'}</span>
+          <p className="text-lg font-semibold text-white/90 text-center px-8" style={{ fontFamily: 'var(--font-display)', textShadow: '0 1px 3px rgba(0,0,0,0.2)' }}>
+            {meeting.title}
+          </p>
         </div>
       )}
 
@@ -167,7 +174,7 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
             className="text-[#444] leading-relaxed whitespace-pre-wrap"
             style={{ fontFamily: 'var(--font-body)' }}
           >
-            {meeting.description}
+            <Linkify text={meeting.description} />
           </p>
         </section>
       )}
@@ -285,7 +292,7 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
             className="rounded-2xl p-5 space-y-3"
             style={{ background: '#e8f5ee', fontFamily: 'var(--font-body)' }}
           >
-            <p className="font-semibold text-[#2C2C2C] text-base">{meeting.local_business}</p>
+            <p className="font-semibold text-[#2C2C2C] text-base"><Linkify text={meeting.local_business} /></p>
             {meeting.local_contact && (
               <InfoRow icon="person" label="Contact" value={meeting.local_contact} />
             )}
@@ -310,7 +317,7 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
             )}
             {meeting.local_notes && (
               <div className="pt-2 border-t border-[#c8e6d4]">
-                <p className="text-sm text-[#555] whitespace-pre-wrap">{meeting.local_notes}</p>
+                <p className="text-sm text-[#555] whitespace-pre-wrap"><Linkify text={meeting.local_notes} /></p>
               </div>
             )}
           </div>
@@ -426,4 +433,32 @@ function InfoRow({
   }
 
   return <div>{content}</div>
+}
+
+/** Auto-linkify URLs in text */
+function Linkify({ text }: { text: string }) {
+  const urlRegex = /(https?:\/\/[^\s<]+)/g
+  const parts = text.split(urlRegex)
+  
+  if (parts.length === 1) return <>{text}</>
+  
+  return (
+    <>
+      {parts.map((part, i) =>
+        urlRegex.test(part) ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#2D7A4C] hover:text-[#1f5a37] underline underline-offset-2 transition-colors"
+          >
+            {part}
+          </a>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  )
 }
