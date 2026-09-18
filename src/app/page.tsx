@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { fetchMeetings } from '@/lib/queries'
 import { FeedClient } from '@/components/feed/FeedClient'
@@ -39,6 +40,23 @@ export default async function HomePage() {
           Browse, filter, and save Girl Scout meeting ideas from troop leaders
           across your area. Free to use, free to share.
         </p>
+
+        {/* Join CTA — only show to visitors who aren't signed in */}
+        {!user && (
+          <div
+            className="mt-6 max-w-lg mx-auto rounded-2xl px-6 py-4"
+            style={{ background: '#e8f5ee', fontFamily: 'var(--font-body)' }}
+          >
+            <p className="text-sm text-[#2C2C2C] mb-3">
+              <span className="font-semibold">Join for free</span> to share your own meeting ideas, leave comments, save your favorites, and get notified when leaders respond to your posts! 🏕️
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <Link href="/auth/signup" className="btn-primary text-sm px-5 py-2">
+                Join Free — It Takes 30 Seconds
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Feed with client-side filtering */}
