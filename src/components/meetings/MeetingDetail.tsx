@@ -285,14 +285,16 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
       )}
 
       {/* ── Local Connection ── */}
-      {meeting.local_business && (
+      {(meeting.local_business || meeting.local_contact || meeting.local_email || meeting.local_phone || meeting.local_address || meeting.local_notes) && (
         <section className="mb-8">
           <h2 className="section-title mb-3">Local Connection</h2>
           <div
             className="rounded-2xl p-5 space-y-3"
             style={{ background: '#e8f5ee', fontFamily: 'var(--font-body)' }}
           >
-            <p className="font-semibold text-[#2C2C2C] text-base"><Linkify text={meeting.local_business} /></p>
+            {meeting.local_business && (
+              <p className="font-semibold text-[#2C2C2C] text-base"><Linkify text={meeting.local_business} /></p>
+            )}
             {meeting.local_contact && (
               <InfoRow icon="person" label="Contact" value={meeting.local_contact} />
             )}
