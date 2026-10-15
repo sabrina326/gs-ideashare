@@ -7,3 +7,10 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Redirect the old netlify.app subdomain to the custom domain
+[[redirects]]
+  from = "https://gs-ideashare.netlify.app/*"
+  to = "https://gsideashare.com/:splat"
+  status = 301
+  force = true
