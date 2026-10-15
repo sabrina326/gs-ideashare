@@ -19,14 +19,31 @@ const nunito = Nunito({
 })
 
 export const metadata: Metadata = {
-  title: 'GS IdeaShare — Girl Scout Meeting Plans',
-  description:
-    'A platform for local Girl Scout troop leaders to share, filter, and archive meeting plans across their area.',
-  openGraph: {
-    title: 'GS IdeaShare',
-    description: 'Share and discover Girl Scout meeting plans',
-    type: 'website',
+  metadataBase: new URL('https://gsideashare.com'),
+  title: {
+    default: 'GS IdeaShare — Girl Scout Meeting Ideas Shared by Troop Leaders',
+    template: '%s — GS IdeaShare',
   },
+  description:
+    'A free platform where Girl Scout troop leaders share meeting ideas, field trips, service projects, and activities. Browse and filter plans by scout level — Daisies through Ambassadors.',
+  keywords: [
+    'Girl Scout meeting ideas',
+    'Girl Scout troop leader resources',
+    'Girl Scout meeting plans',
+    'Girl Scout field trip ideas',
+    'Girl Scout service projects',
+    'troop meeting activities',
+    'Daisies Brownies Juniors Cadettes Seniors Ambassadors',
+  ],
+  openGraph: {
+    title: 'GS IdeaShare — Girl Scout Meeting Ideas',
+    description:
+      'A free platform for Girl Scout troop leaders to share and discover meeting ideas, field trips, and service projects — filterable by scout level.',
+    type: 'website',
+    url: 'https://gsideashare.com',
+    siteName: 'GS IdeaShare',
+  },
+  robots: { index: true, follow: true },
 }
 
 export default function RootLayout({
