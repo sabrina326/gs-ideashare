@@ -161,7 +161,7 @@ export function MeetingDetail({ meeting, currentUserId, isAdmin = false }: Meeti
         initialFavorited={meeting.user_has_favorited ?? false}
         initialCompleted={meeting.user_has_completed ?? false}
         currentUserId={currentUserId}
-        isAdmin={isAdmin}
+        isAdmin={isAdmin || (!!currentUserId && currentUserId === meeting.author_id)}
       />
 
       <hr className="border-[#e5ddd3] my-6" />
